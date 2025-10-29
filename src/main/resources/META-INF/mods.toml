@@ -1,0 +1,10 @@
+modLoader="javafml"
+loaderVersion="[51,)"
+license="MIT"
+
+[[mods]]
+modId="clicktimer"                # must match @Mod("clicktimer")
+version="1.0.0"
+displayName="Click Timer"
+authors="Ofek"
+description="Client-side timer for fishing-rod right-clicks when an entity named !!! is nearby."
