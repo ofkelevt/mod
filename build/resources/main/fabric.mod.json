@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "clicktimer",
+  "version": "1.0.0",
+  "name": "Click Timer",
+  "environment": "client",
+  "entrypoints": { "client": ["com.ofek.clicktimer.ClickCueClient"] },
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "~1.21.5",
+    "fabric-api": "*"
+  }
+}

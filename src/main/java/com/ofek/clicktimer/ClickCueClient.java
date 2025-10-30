@@ -110,6 +110,9 @@ public final class ClickCueClient implements ClientModInitializer {
                 drawCentered(graphics, "ERROR: See log", 0xFF000000, 1.6f);
                 errorLogged = false;
             }
+            if((Farming.activeAuto && !Farming.stopped) || Farming.activeMenual){
+                drawCentered(graphics, "WORKING", 0x00800000, 4f);
+            } 
         });
 
 
@@ -144,7 +147,7 @@ public final class ClickCueClient implements ClientModInitializer {
                 check = now + ThreadLocalRandom.current().nextLong(8000, 10001); // 2000..4000 ms
             }
             if (!last && hasMyHook && canCue && waitForSlug == 0L) {
-                waitForSlug = now + ((long)timeUntilFish)* 1000L + 2000L;
+                waitForSlug = now + ((long)timeUntilFish)* 1000L;
             }
             if(tPostCheck == -1L && !hasMyHook && canCue){
                 tPostCheck = now + 1000L + ThreadLocalRandom.current().nextLong(50,201);

@@ -12,10 +12,20 @@ public final class TimeQueue {
     }
 
     public static final class First {
-        public final long remainingMs; // max(0, dueAt - now)
+        public long remainingMs; // max(0, dueAt - now)
         public final int codeCase;
+        public long DelayRemaingMs;
+        public boolean isFreezed = false;
         private First(long remainingMs, int codeCase) {
-            this.remainingMs = remainingMs; this.codeCase = codeCase;
+            this.remainingMs = remainingMs; this.codeCase = codeCase; DelayRemaingMs = 0;
+        }
+        public void Freez(){
+            DelayRemaingMs = remainingMs - System.currentTimeMillis();
+            isFreezed = true;
+        }
+        public void UnFreez(){
+            remainingMs = remainingMs + System.currentTimeMillis();
+            isFreezed = false;
         }
     }
 
