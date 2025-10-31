@@ -237,6 +237,31 @@ private static void registerMessageHooks() {
             goldenFish = true;
         }
     });
+        ClientReceiveMessageEvents.CHAT.register((message, signedMessage, sender, params, ts) -> {
+        String txt = message.getString().toLowerCase(Locale.ROOT);
+        if (txt.contains("[SkyHanni] Mouse rotation is now locked.")) {
+            Farming.shouldLock = false;
+        }
+    });
+
+    ClientReceiveMessageEvents.GAME.register((message, overlay) -> {
+        String txt = message.getString().toLowerCase(Locale.ROOT);
+        if (txt.contains("[SkyHanni] Mouse rotation is now locked.")) {
+            Farming.shouldLock = false;
+        }
+    });    ClientReceiveMessageEvents.CHAT.register((message, signedMessage, sender, params, ts) -> {
+        String txt = message.getString().toLowerCase(Locale.ROOT);
+        if (txt.contains("[SkyHanni] Mouse rotation is now unlocked.")) {
+            Farming.shouldLock = true;
+        }
+    });
+
+    ClientReceiveMessageEvents.GAME.register((message, overlay) -> {
+        String txt = message.getString().toLowerCase(Locale.ROOT);
+        if (txt.contains("[SkyHanni] Mouse rotation is now unlocked.")) {
+            Farming.shouldLock = true;
+        }
+    });
 }
 
     private static boolean handleStriderCheck(LocalPlayer p,ClientLevel w, boolean tried) {

@@ -60,6 +60,8 @@ public class Farming{
     public static boolean checked = false;
     public static String LastItemName = ""; // no reset
     public static boolean loadItemName = false; //no reset
+    public static boolean shouldLock = false; // no reset
+    public static double yValue = -1000L; // no reset
     private static final int VK_A = 0x41;
     private static final int VK_D = 0x44;
     private static final int VK_W = 0x57;
@@ -105,7 +107,7 @@ public class Farming{
         activeMenual = !activeMenual;
         activeAuto = false;
       }
-    if(loadItemName && !LastItemName.equals(client.player.getMainHandItem().getHoverName().getString()))
+    if(loadItemName && !LastItemName.equals(client.player.getMainHandItem().getHoverName().getString()) && !checked)
       return;
     activeAuto = activeAuto && intervalsLoaded;
     if(activeAuto && !stopped){
@@ -115,12 +117,24 @@ public class Farming{
         menual(client);
   }
   public static void auto(Minecraft clinet){
+    if(shouldLock)
+      sendClientCommand("shlockmouse");
+    if(Math.abs(clinet.player.position().y - yValue) > 2.0 && !checked && yValue > -900L){
+      sendClientCommand("warp garden");
+      reset();
+      checked = true;
+      queue.addTime(((long)getRandomInterval(false) )+ 1000L, 2);
+      activeAuto = true;
+      first = false;
+      return;
+    }
     float Yaw = clinet.player.getYRot();
     float Pitch = clinet.player.getXRot();
     if((Math.abs(Yaw - SavedYaw) > 0.5 || Math.abs(Pitch - SavedPitch) > 0.5) && !checked && SavedAngles){
         queue.addTime(((long)getRandomInterval(false) )+ 1000L, 2);
         checked = true;
     }
+    
     long now = System.currentTimeMillis();
     if(first){
         first = false;
@@ -140,7 +154,7 @@ public class Farming{
     if(Timer != null && Timer.remainingMs < now){
         switch (Timer.codeCase) {
           case 0://key up
-            if(cords == null || clinet.player.position().distanceToSqr(cords) > 1e-3){
+            if(cords == null || clinet.player.position().distanceToSqr(cords) > 1e-5){
               cords = clinet.player.position();
               queue.addTime((long)MaxWaitMs, 0);
               break;
@@ -155,18 +169,18 @@ public class Farming{
             goingRight = !goingRight;
             queue.addTime((long)getRandomInterval(true) % (long)MaxWaitMs, 0);
             break;
-          case 2://reset due to movement
-            reset();
-            first = false;
-            checked = false;
-            activeAuto = true;
-            queue.addTime((long)getRandomInterval(false) % 500L, 3);
+          case 2:
+            NativeInput.pressKey(0x33);
+            queue.addTime((long)getRandomInterval(false) % 200L +50L, 3);
             break;
           case 3:
-            NativeInput.pressKey(0x33);
             NativeInput.leftClick();
+            queue.addTime((long)getRandomInterval(false) % 1000L + 200L, 4);
+            break;
+          case 4:
             NativeInput.pressKey(0x32);
             reset();
+            activeAuto = true;
           default:
             break;
         }
@@ -303,5 +317,11 @@ private static synchronized void appendInterval(double delta) {
             double v = Double.parseDouble(line.trim());
             if (v > 0) vals.add(v);
         } catch (NumberFormatException ignored) {}
+    }
+     public static void sendClientCommand(String command) {
+        var mc = Minecraft.getInstance();
+        if (mc.player != null && mc.getConnection() != null) {
+            mc.getConnection().sendCommand(command);
+        }
     }
 }
