@@ -43,7 +43,10 @@ import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.phys.Vec3;
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
 import java.util.Locale;
-
+import net.fabricmc.api.ClientModInitializer;
+import com.ofek.clicktimer.TabDump;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
 
 public final class ClickCueClient implements ClientModInitializer {
 
@@ -92,6 +95,12 @@ public final class ClickCueClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
+            dispatcher.register(literal("dumpTab").executes(ctx -> {
+                TabDump.dumpTabToFile();
+                return 1;
+            }));
+        });
         toggleKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
                 "key.clicktimer.toggle", GLFW.GLFW_KEY_K, "key.categories.misc"));
         openConfigKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(

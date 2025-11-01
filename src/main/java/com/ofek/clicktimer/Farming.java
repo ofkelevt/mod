@@ -1,5 +1,6 @@
 package com.ofek.clicktimer;
 
+import com.ofek.clicktimer.GardenTabParser.Result;
 import com.ofek.clicktimer.TimeQueue.First;
 import com.ofek.nativeinput.NativeInput;
 import com.sun.jna.platform.win32.WinUser;
@@ -31,6 +32,7 @@ import java.util.Queue;
 import java.util.concurrent.ThreadLocalRandom;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.world.phys.Vec3;
+
 public class Farming{
     private static final Path LOG_PATH = FabricLoader.getInstance().getGameDir().resolve("clicktimer").resolve("space_intervals.csv");
     private static long lastSpaceNanos = 0L;
@@ -62,6 +64,9 @@ public class Farming{
     public static boolean loadItemName = false; //no reset
     public static boolean shouldLock = false; // no reset
     public static double yValue = -1000L; // no reset
+    public static int warningLvl = 4; // no reset
+    public static int disableLvl = 6; // no reset
+    public static Result gardenStatus = new Result(false, "", -1); // no reset
     private static final int VK_A = 0x41;
     private static final int VK_D = 0x44;
     private static final int VK_W = 0x57;
@@ -94,6 +99,8 @@ public class Farming{
         if (activeAuto) {
           reset();
         } else if (!activeMenual) {
+          gardenStatus = GardenTabParser.readGardenStatus();
+          if(gardenStatus.areaIsGarden)
             activeAuto = true;
         }
         // else: activeManual is on → do nothing
@@ -104,11 +111,12 @@ public class Farming{
         reset();
       } else
       if(!activeAuto){
-        activeMenual = !activeMenual;
-        activeAuto = false;
+        gardenStatus = GardenTabParser.readGardenStatus();
+          if(gardenStatus.areaIsGarden)
+          activeMenual = true;
       }
     if(loadItemName && !LastItemName.equals(client.player.getMainHandItem().getHoverName().getString()) && !checked)
-      return;
+      reset();
     activeAuto = activeAuto && intervalsLoaded;
     if(activeAuto && !stopped){
       auto(client);
@@ -119,13 +127,14 @@ public class Farming{
   public static void auto(Minecraft clinet){
     if(shouldLock)
       sendClientCommand("shlockmouse");
-    if(Math.abs(clinet.player.position().y - yValue) > 2.0 && !checked && yValue > -900L){
+    if(Math.abs(clinet.player.position().y - 2) > Math.abs(70 - yValue) && !checked && yValue > -900L){
       sendClientCommand("warp garden");
       reset();
       checked = true;
       queue.addTime(((long)getRandomInterval(false) )+ 1000L, 2);
       activeAuto = true;
       first = false;
+      queue.addTime(1000L, 6);
       return;
     }
     float Yaw = clinet.player.getYRot();
@@ -147,6 +156,7 @@ public class Farming{
         NativeInput.custom(keys, types);
         goingRight = !startRight;
         queue.addTime((long) getRandomInterval(true) % (long)MaxWaitMs, 0); // initial delay
+        queue.addTime(1000L, 6);
     }
     if(Timer == null){
       Timer = queue.isEmpty() ? null : queue.getFirst();
@@ -181,6 +191,26 @@ public class Farming{
             NativeInput.pressKey(0x32);
             reset();
             activeAuto = true;
+          case 5:
+            sendClientCommand("warp garden");
+            reset();
+            checked = true;
+            queue.addTime(((long)getRandomInterval(false) )+ 1000L, 2);
+            activeAuto = true;
+            first = false;
+            queue.addTime(1000L, 6);
+            break;
+          case 6:
+            gardenStatus = GardenTabParser.readGardenStatus();
+            if(!gardenStatus.areaIsGarden){
+              reset();
+              checked = true;
+              queue.addTime(((long)getRandomInterval(true) ) %1000L+ 4000L, 5);
+              activeAuto = true;
+              first = false;
+            }
+            queue.addTime(1000L, 6);
+            break;
           default:
             break;
         }

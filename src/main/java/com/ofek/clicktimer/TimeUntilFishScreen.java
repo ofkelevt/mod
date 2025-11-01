@@ -10,6 +10,8 @@ import net.minecraft.network.chat.Component;
 public class TimeUntilFishScreen extends Screen {
     private EditBox inputTime;
     private EditBox inputMaxWait;
+    private EditBox WarningFarming;
+    private EditBox DisableFarming;
     private Button saveBtn, toggleBtn, saveAnglesBtn, saveItemBtn, getYBtn;
 
     private String error = "";
@@ -77,7 +79,14 @@ public class TimeUntilFishScreen extends Screen {
             }
         }).bounds(w/2 - 100, h/2 + 76, 200, 20).build();
         addRenderableWidget(saveItemBtn);
-
+        WarningFarming = new EditBox(this.font, w/2 - 100, h/2 + 110, 200, 20, Component.literal("warning level"));
+        WarningFarming.setValue(String.valueOf(Farming.warningLvl));
+        WarningFarming.setResponder(s -> error = "");
+        addRenderableWidget(WarningFarming);
+        DisableFarming = new EditBox(this.font, w/2 - 100, h/2 + 135, 200, 20, Component.literal("disable level"));
+        DisableFarming.setValue(String.valueOf(Farming.disableLvl));
+        DisableFarming.setResponder(s -> error = "");
+        addRenderableWidget(DisableFarming);
         // Save button at the bottom
         saveBtn = Button.builder(Component.literal("Save"), b -> {
             try {
@@ -97,7 +106,7 @@ public class TimeUntilFishScreen extends Screen {
             } catch (NumberFormatException e) {
                 error = "Invalid number";
             }
-        }).bounds(w/2 - 40, h/2 + 110, 80, 20).build(); // bottom
+        }).bounds(w/2 - 40, h/2 + 160, 80, 20).build(); // bottom
         addRenderableWidget(saveBtn);
 
         setInitialFocus(inputTime);
